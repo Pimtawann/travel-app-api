@@ -20,8 +20,9 @@ public class SecurityConfig {
       http
           .csrf(csrf -> csrf.disable())
           .authorizeHttpRequests(auth -> auth
-              .requestMatchers("/auth/**").permitAll() 
-              .anyRequest().authenticated()           
+              .requestMatchers("/auth/**").permitAll()
+              .requestMatchers("/api/trips/**").permitAll()
+              .anyRequest().authenticated()
           )
           .httpBasic(httpBasic -> httpBasic.disable())
           .sessionManagement(session -> session.sessionCreationPolicy(
