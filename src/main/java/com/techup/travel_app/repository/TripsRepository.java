@@ -18,9 +18,10 @@ public interface TripsRepository extends JpaRepository<Trips, Long> {
 
     List<Trips> findByTitleContainingIgnoreCase(String title);
 
-    // ค้นหาจาก title หรือ tags
+    // ค้นหาจาก title, description หรือ tags
     @Query(value = "SELECT DISTINCT * FROM trips WHERE " +
            "LOWER(title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(description) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "EXISTS (SELECT 1 FROM unnest(tags) AS tag WHERE LOWER(tag) LIKE LOWER(CONCAT('%', :query, '%')))",
            nativeQuery = true)
     List<Trips> searchByTitleOrTags(@Param("query") String query);
