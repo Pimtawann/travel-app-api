@@ -2,6 +2,8 @@ package com.techup.travel_app.service;
 
 import com.techup.travel_app.entity.Trips;
 import com.techup.travel_app.entity.User;
+import com.techup.travel_app.exception.ResourceNotFoundException;
+import com.techup.travel_app.exception.UnauthorizedException;
 import com.techup.travel_app.repository.TripsRepository;
 import com.techup.travel_app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ public class TripsService {
     // ดู trip ตาม id (public)
     public Trips getTripById(Long id) {
         return tripsRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Trip not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Trip", "id", id));
     }
 
     // ค้นหา trips ตาม query (public)
@@ -35,14 +37,14 @@ public class TripsService {
     // ดู trips ของตัวเอง (protected)
     public List<Trips> getMyTrips(String email) {
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         return tripsRepository.findByAuthorId(user.getId());
     }
 
     // สร้าง trip ใหม่ (protected)
     public Trips createTrip(Trips trip, String email) {
         User author = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
 
         trip.setAuthor(author);
         return tripsRepository.save(trip);
@@ -51,10 +53,10 @@ public class TripsService {
     // แก้ไข trip (protected + ownership validation)
     public Trips updateTrip(Long id, Trips updatedTrip, String email) {
         Trips trip = tripsRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Trip not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Trip", "id", id));
 
         if (!trip.getAuthor().getEmail().equals(email)) {
-            throw new RuntimeException("Unauthorized: You are not the owner of this trip");
+            throw new UnauthorizedException("You are not the owner of this trip");
         }
 
         // อัปเดตเฉพาะฟิลด์ที่ส่งมา (ไม่เป็น null หรือ empty)
@@ -83,10 +85,10 @@ public class TripsService {
     // ลบ trip (protected + ownership validation)
     public void deleteTrip(Long id, String email) {
         Trips trip = tripsRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Trip not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Trip", "id", id));
 
         if (!trip.getAuthor().getEmail().equals(email)) {
-            throw new RuntimeException("Unauthorized: You are not the owner of this trip");
+            throw new UnauthorizedException("You are not the owner of this trip");
         }
 
         tripsRepository.delete(trip);
