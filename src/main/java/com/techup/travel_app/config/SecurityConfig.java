@@ -25,7 +25,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
       http
-          .cors(cors -> cors.disable())
+          .cors(cors -> cors.configurationSource(request -> {
+              var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+              corsConfig.addAllowedOrigin("http://localhost:5173");
+              corsConfig.addAllowedOrigin("http://localhost:5174");
+              corsConfig.addAllowedOriginPattern("https://*.vercel.app");
+              corsConfig.addAllowedOriginPattern("https://*.netlify.app");
+              corsConfig.addAllowedMethod("*");
+              corsConfig.addAllowedHeader("*");
+              corsConfig.setAllowCredentials(true);
+              return corsConfig;
+          }))
           .csrf(csrf -> csrf.disable())
           .authorizeHttpRequests(auth -> auth
               .requestMatchers("/auth/**").permitAll()
