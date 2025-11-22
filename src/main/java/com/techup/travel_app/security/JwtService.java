@@ -21,10 +21,11 @@ public class JwtService {
     return Keys.hmacShaKeyFor(secretKey.getBytes());
   }
 
-  // สร้าง token จาก email
-  public String generateToken(String email) {
+  // สร้าง token จาก email และ displayName
+  public String generateToken(String email, String displayName) {
     return Jwts.builder()
         .subject(email)
+        .claim("displayName", displayName)
         .issuedAt(new Date())
         .expiration(new Date(System.currentTimeMillis() + expirationMs))
         .signWith(getSigningKey())
