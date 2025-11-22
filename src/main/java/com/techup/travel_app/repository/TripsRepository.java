@@ -11,6 +11,8 @@ import java.util.List;
 @Repository
 public interface TripsRepository extends JpaRepository<Trips, Long> {
 
+    List<Trips> findAllByOrderByIdDesc();
+
     List<Trips> findByAuthorId(Long authorId);
 
     @Query(value = "SELECT * FROM trips WHERE :tag = ANY(tags)", nativeQuery = true)

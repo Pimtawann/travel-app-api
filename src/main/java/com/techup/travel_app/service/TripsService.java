@@ -18,9 +18,9 @@ public class TripsService {
     private final TripsRepository tripsRepository;
     private final UserRepository userRepository;
 
-    // ดู trips ทั้งหมด (public)
+    // ดู trips ทั้งหมด (public) - เรียงจาก id มากไปน้อย
     public List<Trips> getAllTrips() {
-        return tripsRepository.findAll();
+        return tripsRepository.findAllByOrderByIdDesc();
     }
 
     // ดู trip ตาม id (public)
