@@ -8,6 +8,7 @@ import com.techup.travel_app.repository.TripsRepository;
 import com.techup.travel_app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,22 +20,26 @@ public class TripsService {
     private final UserRepository userRepository;
 
     // ดู trips ทั้งหมด (public) - เรียงจาก id มากไปน้อย
+    @Transactional(readOnly = true)
     public List<Trips> getAllTrips() {
         return tripsRepository.findAllByOrderByIdDesc();
     }
 
     // ดู trip ตาม id (public)
+    @Transactional(readOnly = true)
     public Trips getTripById(Long id) {
         return tripsRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Trip", "id", id));
     }
 
     // ค้นหา trips ตาม query (public)
+    @Transactional(readOnly = true)
     public List<Trips> searchTrips(String query) {
         return tripsRepository.searchByTitleOrTags(query);
     }
 
     // ดู trips ของตัวเอง (protected)
+    @Transactional(readOnly = true)
     public List<Trips> getMyTrips(String email) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
@@ -42,6 +47,7 @@ public class TripsService {
     }
 
     // สร้าง trip ใหม่ (protected)
+    @Transactional
     public Trips createTrip(Trips trip, String email) {
         User author = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
@@ -51,6 +57,7 @@ public class TripsService {
     }
 
     // แก้ไข trip (protected + ownership validation)
+    @Transactional
     public Trips updateTrip(Long id, Trips updatedTrip, String email) {
         Trips trip = tripsRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Trip", "id", id));
@@ -83,6 +90,7 @@ public class TripsService {
     }
 
     // ลบ trip (protected + ownership validation)
+    @Transactional
     public void deleteTrip(Long id, String email) {
         Trips trip = tripsRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Trip", "id", id));
