@@ -39,4 +39,38 @@ public class AuthController {
       String email = jwtService.extractEmail(token);
       return Map.of("email", email);
     }
+
+    // GET /auth/profile — ดึงข้อมูล user profile
+    @GetMapping("/profile")
+    public Map<String, Object> getProfile(@RequestHeader("Authorization") String header) {
+      String token = header.replace("Bearer ", "");
+      String email = jwtService.extractEmail(token);
+      var user = authService.getUserProfile(email);
+      return Map.of(
+          "email", user.getEmail(),
+          "displayName", user.getDisplayName() != null ? user.getDisplayName() : "",
+          "createdAt", user.getCreatedAt().toString()
+      );
+    }
+
+    // PUT /auth/profile — อัพเดท user profile
+    @PutMapping("/profile")
+    public Map<String, Object> updateProfile(
+        @RequestHeader("Authorization") String header,
+        @RequestBody Map<String, String> req
+    ) {
+      String token = header.replace("Bearer ", "");
+      String email = jwtService.extractEmail(token);
+
+      String displayName = req.get("displayName");
+      String newPassword = req.get("password");
+
+      var user = authService.updateUserProfile(email, displayName, newPassword);
+
+      return Map.of(
+          "message", "Profile updated successfully",
+          "email", user.getEmail(),
+          "displayName", user.getDisplayName() != null ? user.getDisplayName() : ""
+      );
+    }
   }
