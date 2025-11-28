@@ -41,7 +41,31 @@ public class AuthService {
       if (!passwordEncoder.matches(password, user.getPasswordHash())) {
         throw new InvalidCredentialsException();
       }
-  
+
       return jwtService.generateToken(user.getEmail(), user.getDisplayName());
+    }
+
+    // ดึงข้อมูล user profile
+    public User getUserProfile(String email) {
+      return userRepository.findByEmail(email)
+          .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    // อัพเดท user profile
+    public User updateUserProfile(String email, String displayName, String newPassword) {
+      User user = userRepository.findByEmail(email)
+          .orElseThrow(() -> new RuntimeException("User not found"));
+
+      // Update displayName if provided
+      if (displayName != null && !displayName.trim().isEmpty()) {
+        user.setDisplayName(displayName);
+      }
+
+      // Update password if provided
+      if (newPassword != null && !newPassword.trim().isEmpty()) {
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+      }
+
+      return userRepository.save(user);
     }
   }
