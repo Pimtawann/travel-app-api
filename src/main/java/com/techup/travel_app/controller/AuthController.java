@@ -73,4 +73,30 @@ public class AuthController {
           "displayName", user.getDisplayName() != null ? user.getDisplayName() : ""
       );
     }
+
+    // POST /auth/forgot-password — ส่ง email สำหรับรีเซ็ตรหัสผ่าน
+    @PostMapping("/forgot-password")
+    public Map<String, String> forgotPassword(@RequestBody Map<String, String> req) {
+      try {
+        authService.requestPasswordReset(req.get("email"));
+        return Map.of("message", "If the email exists, a reset link has been sent");
+      } catch (Exception e) {
+        // Don't reveal whether email exists or not for security
+        return Map.of("message", "If the email exists, a reset link has been sent");
+      }
+    }
+
+    // POST /auth/reset-password — รีเซ็ตรหัสผ่านด้วย token
+    @PostMapping("/reset-password")
+    public Map<String, String> resetPassword(@RequestBody Map<String, String> req) {
+      authService.resetPassword(req.get("token"), req.get("newPassword"));
+      return Map.of("message", "Password reset successfully");
+    }
+
+    // GET /auth/validate-reset-token — ตรวจสอบว่า token ยังใช้งานได้หรือไม่
+    @GetMapping("/validate-reset-token")
+    public Map<String, Boolean> validateResetToken(@RequestParam String token) {
+      boolean isValid = authService.validateResetToken(token);
+      return Map.of("valid", isValid);
+    }
   }
