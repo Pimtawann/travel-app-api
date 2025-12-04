@@ -1,6 +1,6 @@
 package com.techup.travel_app.service;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class SupabaseStorageService {
 
   @Value("${supabase.url}")
@@ -29,6 +28,16 @@ public class SupabaseStorageService {
   private String apiKey;
 
   private final WebClient.Builder webClientBuilder;
+  private WebClient webClient;
+
+  public SupabaseStorageService(WebClient.Builder webClientBuilder) {
+    this.webClientBuilder = webClientBuilder;
+  }
+
+  @PostConstruct
+  public void init() {
+    this.webClient = webClientBuilder.build();
+  }
 
   // Allowed image types
   private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
@@ -61,9 +70,7 @@ public class SupabaseStorageService {
     }
 
     try {
-      WebClient webClient = webClientBuilder.build();
-
-      webClient.post()
+      this.webClient.post()
           .uri(uploadUrl)
           .header("Authorization", "Bearer " + apiKey)
           .contentType(MediaType.parseMediaType(file.getContentType() != null ? file.getContentType() : "application/octet-stream"))
