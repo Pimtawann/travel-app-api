@@ -25,6 +25,7 @@ A RESTful API for a travel management application built with Spring Boot and Pos
 - ✅ Ownership-based Authorization
 - ✅ CORS Configuration
 - ✅ Connection Pool Optimization
+- ✅ Health Check Endpoint for monitoring and preventing cold starts
 
 ## Prerequisites
 
@@ -78,6 +79,9 @@ mvn spring-boot:run
 The application will run at: `http://localhost:8080`
 
 ## API Endpoints
+
+### Health Check
+- `GET /health` - Health check endpoint for monitoring
 
 ### Authentication
 - `POST /auth/register` - Register new user
@@ -197,3 +201,46 @@ file: [binary-file-data]
   - `https://*.vercel.app`
   - `https://*.netlify.app`
 - **Authorization**: Validates ownership for user-specific operations
+
+## Production Deployment - Preventing Cold Starts
+
+When deploying on platforms with free tier (like Render), services may "spin down" after 15 minutes of inactivity, causing slow initial response times (cold starts). To prevent this:
+
+### Health Check Endpoint
+
+The `/health` endpoint returns service status and can be used for monitoring:
+
+```bash
+GET /health
+
+Response:
+{
+  "status": "UP",
+  "timestamp": "2025-12-16T10:30:00",
+  "service": "travel-app-api"
+}
+```
+
+### Setting Up External Monitoring (Free Solutions)
+
+Use any of these free services to ping the health endpoint every 10-14 minutes:
+
+#### Option 1: UptimeRobot (Recommended)
+1. Sign up at [uptimerobot.com](https://uptimerobot.com)
+2. Add New Monitor → HTTP(s)
+3. URL: `https://your-app.onrender.com/health`
+4. Monitoring Interval: **10 minutes**
+
+#### Option 2: Cron-job.org
+1. Sign up at [cron-job.org](https://cron-job.org)
+2. Create new cronjob
+3. URL: `https://your-app.onrender.com/health`
+4. Interval: Every 10 minutes
+
+#### Option 3: EasyCron
+1. Sign up at [easycron.com](https://www.easycron.com)
+2. Create cron job to ping `/health` every 10 minutes
+
+### Alternative: Upgrade to Paid Plan
+
+Upgrade to **Render Starter Plan** or higher to eliminate auto-spin down completely.
