@@ -38,6 +38,7 @@ public class SecurityConfig {
           }))
           .csrf(csrf -> csrf.disable())
           .authorizeHttpRequests(auth -> auth
+              .requestMatchers("/health").permitAll()
               .requestMatchers("/auth/**").permitAll()
               .requestMatchers("/api/trips/**").permitAll()
               .anyRequest().authenticated()
